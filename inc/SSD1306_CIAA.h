@@ -19,17 +19,7 @@
 
 /*===================================Definiciones========================================*/
 
-/**
- * Los siguiente defines son los parametros de la pantalla
- */
-#define WIDTH  128
-#define HEIGHT 64
 
-#define OLED_RESET 		GPIO8 // Se eligio un pin de la ciaa
-#define SCREEN_ADDRESS  0x3D
-#define I2C_NUMBER		I2C0 //puerto i2c
-#define I2C_CLOCK       400000 // Frecuencia de clock del bus i2c = 400kHz
-#define VCS             SSD1306_SWITCHCAPVCC // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
 #define COMPINS			0x12
 
 
@@ -78,12 +68,57 @@
 #define SSD1306_ACTIVATE_SCROLL 						0x2F                      ///< Start scroll
 #define SSD1306_SET_VERTICAL_SCROLL_AREA 				0xA3             ///< Set scroll range
 
+/*==============================Definicion de tipos de dato==============================*/
+
+typedef struct{
+	uint8_t width;
+	uint8_t height;
+	i2cMap_t i2cNum;
+	uint32_t i2cClock;
+	uint8_t i2cAddress;
+	uint8_t vccSource;
+	gpioMap_t rstPin;
+}ssd1306Config_t;
+
+
 /*==============================Declaracion de funciones=================================*/
 
-bool_t ssd1306_begin(void);
+bool_t ssd1306_begin(uint8_t width, uint8_t height, i2cMap_t i2cNum,
+		uint32_t i2cClock, uint8_t i2cAddress, uint8_t vccSource, gpioMap_t rstPin);
 void ssd1306_display (void);
 void ssd1306_clearDisplay (void);
 void drawPixel(int16_t x, int16_t y, uint16_t color);
 void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color);
+uint8_t getWidth(void);
+uint8_t getHeight(void);
+
+//SSD1306_gfx
+void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
+void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
+void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
+void drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+void fillCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color);
+void fillCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t corners,
+		int16_t delta, uint16_t color);
+void drawRoundRect(int16_t x, int16_t y, int16_t w, int16_t h,
+                                 int16_t r, uint16_t color);
+void drawCircleHelper(int16_t x0, int16_t y0, int16_t r, uint8_t cornername,
+		uint16_t color);
+void fillRoundRect(int16_t x, int16_t y, int16_t w, int16_t h, int16_t r,
+		uint16_t color);
+void drawTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2,
+		int16_t y2, uint16_t color);
+void fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2,
+		int16_t y2, uint16_t color);
+void setTextSize(uint8_t s_x);
+void setTextColor(uint16_t c);
+void setCursor(int16_t x, int16_t y);
+void drawChar(int16_t x, int16_t y, unsigned char c,
+                            uint16_t color, uint16_t bg, uint8_t size_x,
+                            uint8_t size_y);
+size_t write(uint8_t c);
+void print(char* str);
 
 #endif /* POSGRADO_PCSE_INC_SSD1306_CIAA_H_ */
