@@ -1,15 +1,54 @@
 /*
- * ssd1306_gfx_CIAA.c
- *
- *  Created on: 17 jun. 2021
- *      Author: Federico Meghinasso
- *      Mail: fmeghi@gmail.com
+This is the core graphics library for all our displays, providing a common
+set of graphics primitives (points, lines, circles, etc.).  It needs to be
+paired with a hardware-specific library for each display device we carry
+(to handle the lower-level functions).
+
+Adafruit invests time and resources providing this open source code, please
+support Adafruit & open-source hardware by purchasing products from Adafruit!
+
+Copyright (c) 2013 Adafruit Industries.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+- Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+- Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
  */
 
+
+
+/*
+ * ssd1306_gfx_CIAA.c
+ *
+ * Esta libreria se adapto para ser usada con la EDU-CIAA para pantallas OLED con
+ * controlador SSD1306.
+ *
+ * Libreria modificada por Federico Meghinasso (fmeghi@gmail.com)
+ *
+ */
+
+/*===================================Inclusiones=========================================*/
 #include "SSD1306_CIAA.h"
 #include "glcdfont.c"
 #include <string.h>
 
+/*===================================Definiciones========================================*/
 
 #define _swap_int16_t(a, b)                                                    \
   {                                                                            \
@@ -17,6 +56,10 @@
     a = b;                                                                     \
     b = t;                                                                     \
   }
+
+
+/*===========================Declaracion de variables globales============================*/
+
 
 uint8_t textsize_x;   ///< Desired magnification in X-axis of text to print()
 uint8_t textsize_y;   ///< Desired magnification in Y-axis of text to print()
@@ -26,6 +69,21 @@ int16_t cursor_x;     ///< x location to start print()ing text
 int16_t cursor_y;     ///< y location to start print()ing text
 bool_t wrap = 1;
 
+
+/*=========================Declaracion de funciones publicas==============================*/
+
+
+
+/**************************************************************************/
+/*!
+   @brief    Write a line.  Bresenham's algorithm - thx wikpedia
+    @param    x0  Start point x coordinate
+    @param    y0  Start point y coordinate
+    @param    x1  End point x coordinate
+    @param    y1  End point y coordinate
+    @param    color 16-bit 5-6-5 Color to draw with
+*/
+/**************************************************************************/
 void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color) {
 
 	int16_t steep = abs(y1 - y0) > abs(x1 - x0);
@@ -66,19 +124,48 @@ void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color) {
 	}
 }
 
-
+/**************************************************************************/
+/*!
+   @brief    Draw a perfectly horizontal line (this is often optimized in a
+   subclass!)
+    @param    x   Left-most x coordinate
+    @param    y   Left-most y coordinate
+    @param    w   Width in pixels
+   @param    color 16-bit 5-6-5 Color to fill with
+*/
+/**************************************************************************/
 void drawFastHLine(int16_t x, int16_t y, int16_t w, uint16_t color) {
 
 	drawLine(x, y, x + w - 1, y, color);
 
 }
 
+/**************************************************************************/
+/*!
+   @brief    Draw a perfectly vertical line (this is often optimized in a
+   subclass!)
+    @param    x   Top-most x coordinate
+    @param    y   Top-most y coordinate
+    @param    h   Height in pixels
+   @param    color 16-bit 5-6-5 Color to fill with
+*/
+/**************************************************************************/
 void drawFastVLine(int16_t x, int16_t y, int16_t h, uint16_t color) {
 
 	drawLine(x, y, x, y + h - 1, color);
 
 }
 
+/**************************************************************************/
+/*!
+   @brief   Draw a rectangle with no fill color
+    @param    x   Top left corner x coordinate
+    @param    y   Top left corner y coordinate
+    @param    w   Width in pixels
+    @param    h   Height in pixels
+    @param    color 16-bit 5-6-5 Color to draw with
+*/
+/**************************************************************************/
 void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
 	drawFastHLine(x, y, w, color);
 	drawFastHLine(x, y + h - 1, w, color);
@@ -86,12 +173,33 @@ void drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
 	drawFastVLine(x + w - 1, y, h, color);
 }
 
+/**************************************************************************/
+/*!
+   @brief    Fill a rectangle completely with one color. Update in subclasses if
+   desired!
+    @param    x   Top left corner x coordinate
+    @param    y   Top left corner y coordinate
+    @param    w   Width in pixels
+    @param    h   Height in pixels
+   @param    color 16-bit 5-6-5 Color to fill with
+*/
+/**************************************************************************/
 void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color) {
 	for (int16_t i = x; i < x + w; i++) {
 		drawFastVLine(i, y, h, color);
 	}
 }
 
+
+/**************************************************************************/
+/*!
+   @brief    Draw a circle outline
+    @param    x0   Center-point x coordinate
+    @param    y0   Center-point y coordinate
+    @param    r   Radius of circle
+    @param    color 16-bit 5-6-5 Color to draw with
+*/
+/**************************************************************************/
 void drawCircle(int16_t x0, int16_t y0, int16_t r, uint16_t color) {
 	int16_t f = 1 - r;
 	int16_t ddF_x = 1;

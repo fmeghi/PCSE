@@ -7,12 +7,14 @@
  */
 
 
-/*========================Inclusiones================================*/
+/*===========================[Inclusiones]============================*/
+#include "LogoFIUBA.c"
 #include "sapi.h" //Inclusion de las SAPI
 
 #include "SSD1306_CIAA.h"
 
-/*========================Definiciones===============================*/
+
+/*===========================[Definiciones]==========================*/
 
 /**
  * Los siguiente defines son los parametros de la pantalla
@@ -28,6 +30,7 @@
 
 #define max(a,b) ((a)>(b)?(a):(b))
 
+/*================[Declaracion de funciones privadas]===============*/
 void testdrawline(void);
 void testdrawrect(void);
 void testfillrect(void);
@@ -38,6 +41,8 @@ void testfillroundrect(void);
 void testdrawtriangle(void);
 void testfilltriangle(void);
 void testdrawchar(void);
+void testscrolltext(void);
+
 
 
 /*==========================Funciones=================================*/
@@ -48,18 +53,27 @@ int main ( void )
 
 	ssd1306_begin(WIDTH, HEIGHT, I2C_NUMBER, I2C_CLOCK, SCREEN_ADDRESS, VCS, OLED_RESET);
 	ssd1306_display();
+	delay(2000);
+//	ssd1306_clearDisplay();
+//	testdrawline();
+//	testdrawrect();
+//	testfillrect();
+//	testdrawcircle();
+//	testfillcircle();
+//	testdrawroundrect();
+//	testfillroundrect();
+//	testdrawtriangle();
+//	testfilltriangle();
+//	testdrawchar();
+//	testscrolltext();
 	ssd1306_clearDisplay();
-	testdrawline();
-	testdrawrect();
-	testfillrect();
-	testdrawcircle();
-	testfillcircle();
-	testdrawroundrect();
-	testfillroundrect();
-	testdrawtriangle();
-	testfilltriangle();
-	testdrawchar();
+	drawBitmap(48, 0, LogoFIUBA, 32, 62, SSD1306_WHITE);
 	ssd1306_display();
+	delay(2000);
+	invertDisplay(TRUE);
+	delay(1000);
+	invertDisplay(FALSE);
+	delay(1000);
 
 	while(1){
 
@@ -68,7 +82,7 @@ int main ( void )
 
 }
 
-
+/*=========================[funciones privadas]=========================*/
 
 
 void testdrawline() {
@@ -260,12 +274,36 @@ void testdrawchar(void) {
 
 	ssd1306_display();
 	delay(2000);
-	ssd1306_clearDisplay();
-	setTextSize(2);
-	setCursor(0, 25);
-	char str[] = "Hola Peque";
-	print(str);
-
-	ssd1306_display();
-	delay(2000);
 }
+
+void testscrolltext(void) {
+	ssd1306_clearDisplay();
+
+	setTextSize(2); // Draw 2X-scale text
+	setTextColor(SSD1306_WHITE);
+	setCursor(10, 0);
+	print("scroll");
+	ssd1306_display();      // Show initial text
+	delay(100);
+
+	// Scroll in various directions, pausing in-between:
+	startscrollright(0x00, 0x0F);
+	delay(2000);
+	stopscroll();
+	delay(1000);
+	startscrollleft(0x00, 0x0F);
+	delay(2000);
+	stopscroll();
+	delay(1000);
+	startscrolldiagright(0x00, 0x07);
+	delay(2000);
+	startscrolldiagleft(0x00, 0x07);
+	delay(2000);
+	stopscroll();
+	delay(1000);
+}
+
+
+
+
+

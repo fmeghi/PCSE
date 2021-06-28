@@ -1,9 +1,47 @@
+/*!
+ *
+ * @section intro_sec Introduction
+ *
+ * This is documentation for Adafruit's SSD1306 library for monochrome
+ * OLED displays: http://www.adafruit.com/category/63_98
+ *
+ * These displays use I2C or SPI to communicate. I2C requires 2 pins
+ * (SCL+SDA) and optionally a RESET pin. SPI requires 4 pins (MOSI, SCK,
+ * select, data/command) and optionally a reset pin. Hardware SPI or
+ * 'bitbang' software SPI are both supported.
+ *
+ * Adafruit invests time and resources providing this open source code,
+ * please support Adafruit and open-source hardware by purchasing
+ * products from Adafruit!
+ *
+ * @section dependencies Dependencies
+ *
+ * This library depends on <a
+ * href="https://github.com/adafruit/Adafruit-GFX-Library"> Adafruit_GFX</a>
+ * being present on your system. Please make sure you have installed the latest
+ * version before using this library.
+ *
+ * @section author Author
+ *
+ * Written by Limor Fried/Ladyada for Adafruit Industries, with
+ * contributions from the open source community.
+ *
+ * @section license License
+ *
+ * BSD license, all text above, and the splash screen included below,
+ * must be included in any redistribution.
+ *
+ */
+
+
 /*
  * SSD1306_CIAA.c
  *
- *  Created on: 12 jun. 2021
- *      Author: Federico Meghinasso
- *      Mail: 	fmeghi@gmail.com
+ * Libreria adaptada para ser usada en la EDU-CIAA. Con este proposito tambien
+ * se adapto parte de la libreria Adafruit_GFX necesaria para algunas funciones.
+ *
+ * Modificada por Federico Meghinasso. (fmeghi@gmail.com)
+ *
  */
 
 /*================================Inclusiones====================================*/
@@ -11,8 +49,7 @@
 #include "splash.h"
 /*================================Definiciones===================================*/
 
-//#define ssd1306_swap(a, b)                                                     \
-  (((a) ^= (b)), ((b) ^= (a)), ((a) ^= (b))) ///< No-temp-var swap operation
+
 
 /*================================Variables Globales==============================*/
 
@@ -168,6 +205,129 @@ uint8_t getWidth(void){
 uint8_t getHeight(void){
 	return display.height;
 }
+
+/*!
+    @brief  Activate a right-handed scroll for all or part of the display.
+    @param  start
+            First row.
+    @param  stop
+            Last row.
+    @return None (void).
+*/
+void startscrollright(uint8_t start, uint8_t stop) {
+
+	static uint8_t scrollList1a[] = {
+			SSD1306_RIGHT_HORIZONTAL_SCROLL, 0X00};
+	ssd1306_commandList(scrollList1a, sizeof(scrollList1a));
+	ssd1306_command1(start);
+	ssd1306_command1(0X00);
+	ssd1306_command1(stop);
+	static uint8_t scrollList1b[] = { 0X00, 0XFF,
+			SSD1306_ACTIVATE_SCROLL };
+	ssd1306_commandList(scrollList1b, sizeof(scrollList1b));
+}
+
+/*!
+    @brief  Activate a left-handed scroll for all or part of the display.
+    @param  start
+            First row.
+    @param  stop
+            Last row.
+    @return None (void).
+*/
+void startscrollleft(uint8_t start, uint8_t stop) {
+	static uint8_t scrollList2a[] =
+			{ SSD1306_LEFT_HORIZONTAL_SCROLL, 0X00 };
+	ssd1306_commandList(scrollList2a, sizeof(scrollList2a));
+	ssd1306_command1(start);
+	ssd1306_command1(0X00);
+	ssd1306_command1(stop);
+	static uint8_t scrollList2b[] = { 0X00, 0XFF,
+			SSD1306_ACTIVATE_SCROLL };
+	ssd1306_commandList(scrollList2b, sizeof(scrollList2b));
+
+}
+
+/*!
+    @brief  Activate a diagonal scroll for all or part of the display.
+    @param  start
+            First row.
+    @param  stop
+            Last row.
+    @return None (void).
+*/
+
+void startscrolldiagright(uint8_t start, uint8_t stop) {
+
+	static uint8_t scrollList3a[] = {
+			SSD1306_SET_VERTICAL_SCROLL_AREA, 0X00 };
+	ssd1306_commandList(scrollList3a, sizeof(scrollList3a));
+	ssd1306_command1(display.height);
+	static uint8_t scrollList3b[] = {
+			SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL, 0X00 };
+	ssd1306_commandList(scrollList3b, sizeof(scrollList3b));
+	ssd1306_command1(start);
+	ssd1306_command1(0X00);
+	ssd1306_command1(stop);
+	static uint8_t scrollList3c[] = { 0X01, SSD1306_ACTIVATE_SCROLL };
+	ssd1306_commandList(scrollList3c, sizeof(scrollList3c));
+
+}
+
+/*!
+    @brief  Activate alternate diagonal scroll for all or part of the display.
+    @param  start
+            First row.
+    @param  stop
+            Last row.
+    @return None (void).
+*/
+
+void startscrolldiagleft(uint8_t start, uint8_t stop) {
+
+	static uint8_t scrollList4a[] = {
+			SSD1306_SET_VERTICAL_SCROLL_AREA, 0X00 };
+	ssd1306_commandList(scrollList4a, sizeof(scrollList4a));
+	ssd1306_command1(display.height);
+	static uint8_t scrollList4b[] = {
+			SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL, 0X00 };
+	ssd1306_commandList(scrollList4b, sizeof(scrollList4b));
+	ssd1306_command1(start);
+	ssd1306_command1(0X00);
+	ssd1306_command1(stop);
+	static uint8_t scrollList4c[] = { 0X01, SSD1306_ACTIVATE_SCROLL };
+	ssd1306_commandList(scrollList4c, sizeof(scrollList4c));
+
+}
+
+/*!
+    @brief  Cease a previously-begun scrolling action.
+    @return None (void).
+*/
+void stopscroll(void) {
+  ssd1306_command1(SSD1306_DEACTIVATE_SCROLL);
+
+}
+
+
+
+/*!
+    @brief  Enable or disable display invert mode (white-on-black vs
+            black-on-white).
+    @param  i
+            If true, switch to invert mode (black-on-white), else normal
+            mode (white-on-black).
+    @return None (void).
+    @note   This has an immediate effect on the display, no need to call the
+            display() function -- buffer contents are not changed, rather a
+            different pixel mode of the display hardware is used. When
+            enabled, drawing SSD1306_BLACK (value 0) pixels will actually draw
+   white, SSD1306_WHITE (value 1) will draw black.
+*/
+void invertDisplay(bool i) {
+	ssd1306_command1(i ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY);
+}
+
 
 
 

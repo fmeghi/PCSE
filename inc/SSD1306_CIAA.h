@@ -91,6 +91,12 @@ void drawPixel(int16_t x, int16_t y, uint16_t color);
 void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color);
 uint8_t getWidth(void);
 uint8_t getHeight(void);
+void startscrollright(uint8_t start, uint8_t stop);
+void startscrollleft(uint8_t start, uint8_t stop);
+void startscrolldiagright(uint8_t start, uint8_t stop);
+void startscrolldiagleft(uint8_t start, uint8_t stop);
+void stopscroll(void);
+void invertDisplay(bool i);
 
 //SSD1306_gfx
 void drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color);
