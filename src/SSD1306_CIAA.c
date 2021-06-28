@@ -37,8 +37,9 @@
 /*
  * SSD1306_CIAA.c
  *
- * Libreria adaptada para ser usada en la EDU-CIAA. Con este proposito tambien
- * se adapto parte de la libreria Adafruit_GFX necesaria para algunas funciones.
+ * Libreria adaptada para manejar pantallas OLED con controlador SSD1306 en la EDU-CIAA
+ * usando el puerto I2C. Con este proposito tambien se adapto parte de la libreria
+ * Adafruit_GFX necesaria para algunas funciones.
  *
  * Modificada por Federico Meghinasso. (fmeghi@gmail.com)
  *
@@ -63,7 +64,11 @@ void ssd1306_command1(uint8_t data);
 
 /*================================Funciones Publicas=============================*/
 
-
+/*
+ * Esta funcion se debe llamar antes de utilizar la pantalla.
+ *
+ *
+ */
 
 bool_t ssd1306_begin(uint8_t width, uint8_t height, i2cMap_t i2cNum,
 		uint32_t i2cClock, uint8_t i2cAddress, uint8_t vccSource, gpioMap_t rstPin) {
